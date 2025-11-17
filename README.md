@@ -86,7 +86,27 @@ Configure pricing for different models and context windows:
 
 ## 🚀 Quick Start
 
-### Option 1: Download Pre-built App (Recommended)
+### Option 1: Install with Homebrew (Easiest)
+
+```bash
+# Add the tap
+brew tap SergioBanuls/claudeusagetracker
+
+# Install the app
+brew install --cask claudeusagetracker
+```
+
+**Or install in one command:**
+```bash
+brew install --cask SergioBanuls/claudeusagetracker/claudeusagetracker
+```
+
+**Benefits:**
+- ✅ No need to run `xattr` manually - Homebrew handles it
+- ✅ Easy updates: `brew upgrade claudeusagetracker`
+- ✅ Clean uninstall: `brew uninstall --cask claudeusagetracker`
+
+### Option 2: Download Pre-built App
 
 1. **Download** the latest `.dmg` file from the [Releases](../../releases) page
 2. **Open** the DMG file (double-click)
@@ -100,7 +120,7 @@ Configure pricing for different models and context windows:
 
 > **Note**: Since this app is not signed with an Apple Developer certificate, macOS Gatekeeper will block it by default. The `xattr` command above removes this security block. You may still need to right-click and select "Open" the first time.
 
-### Option 2: Build from Source
+### Option 3: Build from Source
 
 #### Prerequisites
 - macOS 13.0 (Ventura) or later
