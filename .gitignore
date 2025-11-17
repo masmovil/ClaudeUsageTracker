@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Build artifacts
+ClaudeUsageTracker.app
+ClaudeUsageTracker_binary
+*.app
+build/
+.build/
+
+# Xcode
+xcuserdata/
+*.xcworkspace
+!default.xcworkspace
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# Backup files
+*.backup
+*~
+
+# Release artifacts
+release/
+
+# Personal data
+*.csv
+
+# Logo (tracked)
+!logo.png
