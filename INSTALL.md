@@ -4,7 +4,63 @@ This guide will walk you through installing Claude Usage Tracker on your Mac.
 
 ---
 
-## ⚡ Quick Install (Recommended)
+## ⚡ Quick Install with Homebrew (Easiest)
+
+**This is the recommended installation method** - Homebrew automatically handles macOS security settings.
+
+### Prerequisites
+
+You need Homebrew installed. If you don't have it:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+### Installation Steps
+
+**Option A: Two commands**
+```bash
+# Add the tap
+brew tap SergioBanuls/claudeusagetracker
+
+# Install the app
+brew install --cask claudeusagetracker
+```
+
+**Option B: One command**
+```bash
+brew install --cask SergioBanuls/claudeusagetracker/claudeusagetracker
+```
+
+### After Installation
+
+1. The app is automatically installed to `/Applications`
+2. Look for the **💰** icon in your menu bar (top-right corner)
+3. No need to run `xattr` or deal with security warnings!
+
+### Update
+
+```bash
+# Update Homebrew
+brew update
+
+# Upgrade the app
+brew upgrade claudeusagetracker
+```
+
+### Uninstall
+
+```bash
+brew uninstall --cask claudeusagetracker
+```
+
+**🎉 That's it! Skip to the [Usage section](#-next-steps)**
+
+---
+
+## 📦 Manual Install (Alternative Method)
+
+If you prefer not to use Homebrew, you can install manually:
 
 ### Step 1: Download the App
 
@@ -53,6 +109,26 @@ This guide will walk you through installing Claude Usage Tracker on your Mac.
 3. Click the icon to open the app panel
 
 **🎉 That's it! You're all set!**
+
+### Update (Manual Method)
+
+1. Download the latest release
+2. Quit the current app (click 💰 → Quit)
+3. Replace the old app in Applications with the new one
+4. Open the new version
+
+### Uninstall (Manual Method)
+
+```bash
+# Quit the app
+killall ClaudeUsageTracker 2>/dev/null || true
+
+# Delete the app
+rm -rf /Applications/ClaudeUsageTracker.app
+
+# (Optional) Remove preferences
+defaults delete com.claudeusage.tracker
+```
 
 ---
 
