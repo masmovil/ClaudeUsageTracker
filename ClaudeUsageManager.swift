@@ -6,7 +6,8 @@ class ClaudeUsageManager: ObservableObject {
     @Published var currentMonthCost: Double = 0.0
     @Published var totalCost: Double = 0.0
     @Published var lastUpdate: Date = Date()
-    
+    @Published var isLoading: Bool = false
+
     var onDataUpdated: (() -> Void)?
     var onLoadingStateChanged: ((Bool) -> Void)?
     var pricingManager: PricingManager?
@@ -67,8 +68,9 @@ class ClaudeUsageManager: ObservableObject {
 
     func loadData() {
         // Notificar que está cargando
+        isLoading = true
         onLoadingStateChanged?(true)
-        
+
         let claudeProjectsPath = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".claude/projects")
         
@@ -208,7 +210,10 @@ class ClaudeUsageManager: ObservableObject {
             self.totalCost = self.monthlyData.reduce(0) { $0 + $1.cost }
             
             self.lastUpdate = Date()
-            
+
+            // Finalizar carga
+            self.isLoading = false
+
             // Notificar que los datos se actualizaron
             self.onDataUpdated?()
         }
