@@ -21,6 +21,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var currencyManager = CurrencyManager()
     private var timer: Timer?
     private var cancellables = Set<AnyCancellable>()
+    private var eventMonitor: Any?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Vincular managers con el manager de datos
@@ -70,29 +71,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             .store(in: &cancellables)
 
-        // Cargar datos iniciales
+        // Cargar datos iniciales (sin mostrar loading)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.manager.loadData()
+            self?.manager.loadData(showLoading: false)
         }
 
-        // Actualizar cada 1 minuto
+        // Actualizar cada 1 minuto (sin mostrar loading)
         timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            self?.manager.loadData()
+            self?.manager.loadData(showLoading: false)
         }
     }
     
     @objc func togglePopover() {
         if let popover = popover, popover.isShown {
-            popover.performClose(nil)
+            closePopover()
         } else {
             showPopover()
+        }
+    }
+
+    func closePopover() {
+        popover?.performClose(nil)
+        stopMonitoringClicksOutside()
+    }
+
+    func startMonitoringClicksOutside() {
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            if let popover = self?.popover, popover.isShown {
+                self?.closePopover()
+            }
+        }
+    }
+
+    func stopMonitoringClicksOutside() {
+        if let monitor = eventMonitor {
+            NSEvent.removeMonitor(monitor)
+            eventMonitor = nil
         }
     }
     
     func showPopover() {
         let popover = NSPopover()
         popover.contentSize = NSSize(width: 450, height: 600)
-        popover.behavior = .semitransient
+        popover.behavior = .transient
         popover.contentViewController = NSHostingController(
             rootView: MainView()
                 .environmentObject(manager)
@@ -105,6 +126,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let button = statusItem?.button {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         }
+
+        startMonitoringClicksOutside()
     }
     
     func updateMenuBarTitle() {

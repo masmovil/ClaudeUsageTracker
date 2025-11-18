@@ -20,7 +20,8 @@
 
 - **🎯 Accurate Cost Tracking** - Properly groups tool calls and calculates costs per conversation turn
 - **📊 Real-time Monitoring** - Current month cost visible in your menu bar
-- **🔄 Automatic Updates** - Refreshes every minute
+- **🔄 Smart Updates** - Automatic silent updates every minute, manual refresh with visual feedback
+- **📄 Pagination System** - View 2 months at a time with elegant navigation controls
 - **📅 Monthly Breakdown** - Complete usage history organized by month
 - **📁 Project Tracking** - See which projects consume the most tokens
 - **📈 Detailed Metrics** - Token breakdown by type:
@@ -28,11 +29,13 @@
   - Cache creation (write) tokens
   - Cache read tokens
   - Output tokens
+- **📤 CSV Export** - Export your data in clean CSV format (by month or by project)
 - **⚙️ Configurable Pricing** - Adjust pricing for different Claude models and context windows
 - **🌍 Multi-language** - Switch between English 🇺🇸 and Spanish 🇪🇸
 - **💱 Currency Conversion** - Automatically shows costs in EUR (€) when Spanish is selected, using daily exchange rates
 - **🖥️ Native macOS** - Built with SwiftUI, lightweight and fast
 - **🔒 Privacy-first** - All usage data stays local (only fetches exchange rate once per day)
+- **🎨 Polished UI** - Clean interface with smooth interactions and auto-close popover
 
 ---
 
@@ -198,22 +201,47 @@ Without proper turn grouping, tool-heavy conversations could be counted 2-3× hi
 ## 🎯 Usage
 
 ### Menu Bar Icon
-- Shows current month's cost: **💰 $165.14**
+- Shows current month's cost: **💰 $165.14** (or **€** when Spanish is selected)
 - Click to open the detailed panel
-- Shows **💰 ...** while loading
+- Updates silently every minute in the background
+- Click outside the panel to close it
 
 ### Main Panel
 
 **Two tabs:**
-1. **By Month** 📅 - Monthly breakdown with detailed token metrics
+1. **By Month** 📅 - Monthly breakdown with detailed token metrics (paginated, 2 months per page)
 2. **By Project** 📁 - Project-based cost analysis
 
 **Controls:**
+- **📤 Export** - Export current view to CSV file
 - **⚙️ Settings** - Configure pricing for different models
-- **🔄 Refresh** - Manually update data
 - **🇺🇸 / 🇪🇸 Language Selector** - Switch between English and Spanish
+- **🔄 Refresh** - Manually update data (shows loading spinner)
 - **✖️ Close** - Exit the application
 - **Last update** - Timestamp of last data refresh (bottom)
+
+### Pagination (Monthly View)
+
+When you have more than 2 months of data:
+- **← Newer / Recientes** - Go to more recent months
+- **Page indicator** - Shows current page (e.g., "1 / 3")
+- **Older / Antiguos →** - Go to older months
+- **Total Cost** - Always visible at the bottom, showing grand total
+
+### CSV Export
+
+Export your data for analysis in Excel, Google Sheets, or other tools:
+
+1. Switch to the view you want to export (By Month or By Project)
+2. Click the **📤 Export button** in the top-right
+3. Choose where to save the file
+4. The CSV will include:
+   - Month/Project name
+   - Token type (Input, Cache Creation, Cache Read, Output)
+   - Token count
+   - Cost per type
+   - Totals for each month/project
+   - Grand total
 
 ### Settings Panel
 
@@ -227,8 +255,9 @@ Customize pricing to match your Claude API plan:
 4. Click **Reset to Defaults** to restore Sonnet 4.5 pricing
 
 ### Automatic Updates
-- Updates every 60 seconds automatically
-- Manual refresh available via 🔄 button
+- Updates every 60 seconds automatically (silently, no loading indicator)
+- Manual refresh shows a loading spinner for user feedback
+- Menu bar currency updates instantly when changing language
 
 ---
 
