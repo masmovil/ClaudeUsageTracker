@@ -68,14 +68,23 @@ class ClaudeUsageManager: ObservableObject {
 
     func loadData() {
         // Notificar que está cargando
-        isLoading = true
-        onLoadingStateChanged?(true)
+        DispatchQueue.main.async {
+            self.isLoading = true
+            self.onLoadingStateChanged?(true)
+        }
 
-        let claudeProjectsPath = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".claude/projects")
-        
-        var monthlyDict: [String: TokenBreakdown] = [:]
-        var projectDict: [String: TokenBreakdown] = [:]
+        // Procesar datos en background
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+
+            // Delay mínimo para que el spinner sea visible
+            Thread.sleep(forTimeInterval: 0.3)
+
+            let claudeProjectsPath = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent(".claude/projects")
+
+            var monthlyDict: [String: TokenBreakdown] = [:]
+            var projectDict: [String: TokenBreakdown] = [:]
         
         guard let projects = try? FileManager.default.contentsOfDirectory(atPath: claudeProjectsPath.path) else {
             return
@@ -216,6 +225,7 @@ class ClaudeUsageManager: ObservableObject {
 
             // Notificar que los datos se actualizaron
             self.onDataUpdated?()
+        }
         }
     }
     
