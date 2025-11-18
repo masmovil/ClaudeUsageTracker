@@ -54,9 +54,16 @@ struct MainView: View {
                 Button(action: {
                     manager.loadData()
                 }) {
-                    Image(systemName: "arrow.clockwise")
+                    if manager.isLoading {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                            .frame(width: 16, height: 16)
+                    } else {
+                        Image(systemName: "arrow.clockwise")
+                    }
                 }
                 .buttonStyle(.plain)
+                .disabled(manager.isLoading)
                 
                 Button(action: {
                     NSApplication.shared.terminate(nil)
