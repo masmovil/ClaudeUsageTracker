@@ -66,19 +66,23 @@ class ClaudeUsageManager: ObservableObject {
         projectBreakdown.accumulatedCost += turnCost
     }
 
-    func loadData() {
-        // Notificar que está cargando
-        DispatchQueue.main.async {
-            self.isLoading = true
-            self.onLoadingStateChanged?(true)
+    func loadData(showLoading: Bool = true) {
+        // Notificar que está cargando solo si se solicita
+        if showLoading {
+            DispatchQueue.main.async {
+                self.isLoading = true
+                self.onLoadingStateChanged?(true)
+            }
         }
 
         // Procesar datos en background
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else { return }
 
-            // Delay mínimo para que el spinner sea visible
-            Thread.sleep(forTimeInterval: 0.3)
+            // Delay mínimo para que el spinner sea visible (solo si mostramos loading)
+            if showLoading {
+                Thread.sleep(forTimeInterval: 0.3)
+            }
 
             let claudeProjectsPath = FileManager.default.homeDirectoryForCurrentUser
                 .appendingPathComponent(".claude/projects")
@@ -204,24 +208,26 @@ class ClaudeUsageManager: ObservableObject {
                 let cost = self.calculateCost(breakdown)
                 return (month: month, cost: cost, details: breakdown)
             }.sorted { $0.month > $1.month }
-            
+
             self.projectData = projectDict.map { (project, breakdown) in
                 let cost = self.calculateCost(breakdown)
                 let simplifiedName = self.simplifyProjectName(project)
                 return (project: simplifiedName, cost: cost, details: breakdown)
             }.sorted { $0.cost > $1.cost }
-            
+
             // Calculate current month cost
             let currentMonth = self.getCurrentMonthKey()
             self.currentMonthCost = self.monthlyData.first(where: { $0.month == currentMonth })?.cost ?? 0.0
-            
+
             // Calculate total
             self.totalCost = self.monthlyData.reduce(0) { $0 + $1.cost }
             
             self.lastUpdate = Date()
 
-            // Finalizar carga
-            self.isLoading = false
+            // Finalizar carga solo si se estaba mostrando
+            if showLoading {
+                self.isLoading = false
+            }
 
             // Notificar que los datos se actualizaron
             self.onDataUpdated?()
