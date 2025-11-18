@@ -50,11 +50,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Fetch exchange rate initially
         currencyManager.fetchExchangeRate()
 
-        // Observe language changes to update menu bar and fetch exchange rate
+        // Observe language changes to fetch exchange rate and update menu bar
         localizationManager.$currentLanguage
             .sink { [weak self] _ in
                 self?.currencyManager.fetchExchangeRate()
-                self?.updateMenuBarTitle()
+                // Update immediately with current rate (format changes even if rate doesn't)
+                DispatchQueue.main.async {
+                    self?.updateMenuBarTitle()
+                }
+            }
+            .store(in: &cancellables)
+
+        // Observe exchange rate changes to update menu bar
+        currencyManager.$exchangeRate
+            .sink { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.updateMenuBarTitle()
+                }
             }
             .store(in: &cancellables)
 
