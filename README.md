@@ -107,8 +107,14 @@ brew install --cask SergioBanuls/claudeusagetracker/claudeusagetracker
 
 **Benefits:**
 - ✅ No need to run `xattr` manually - Homebrew handles it
-- ✅ Easy updates: `brew upgrade claudeusagetracker`
+- ✅ Easy updates: `brew update && brew upgrade claudeusagetracker`
 - ✅ Clean uninstall: `brew uninstall --cask claudeusagetracker`
+
+**To update to the latest version:**
+```bash
+brew update && brew upgrade claudeusagetracker
+```
+Note: `brew update` is required first to refresh the tap information.
 
 ### Option 2: Download Pre-built App
 
