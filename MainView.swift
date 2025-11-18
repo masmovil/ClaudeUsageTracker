@@ -4,6 +4,7 @@ struct MainView: View {
     @EnvironmentObject var manager: ClaudeUsageManager
     @EnvironmentObject var localizationManager: LocalizationManager
     @EnvironmentObject var pricingManager: PricingManager
+    @EnvironmentObject var currencyManager: CurrencyManager
     @State private var selectedTab = 0
     @State private var showSettings = false
     
@@ -104,6 +105,7 @@ struct MainView: View {
 struct MonthlyView: View {
     @EnvironmentObject var manager: ClaudeUsageManager
     @EnvironmentObject var localizationManager: LocalizationManager
+    @EnvironmentObject var currencyManager: CurrencyManager
     
     var body: some View {
         ScrollView {
@@ -114,7 +116,7 @@ struct MonthlyView: View {
                             Text("📅 \(manager.formatMonth(item.month))")
                                 .font(.headline)
                             Spacer()
-                            Text(String(format: "$%.2f", item.cost))
+                            Text(currencyManager.formatAmount(item.cost, language: localizationManager.currentLanguage))
                                 .font(.headline)
                                 .foregroundColor(.green)
                         }
@@ -159,7 +161,7 @@ struct MonthlyView: View {
                     Text(localizationManager.localized(.total))
                         .font(.headline)
                     Spacer()
-                    Text(String(format: "$%.2f", manager.totalCost))
+                    Text(currencyManager.formatAmount(manager.totalCost, language: localizationManager.currentLanguage))
                         .font(.title2)
                         .bold()
                         .foregroundColor(.green)
@@ -174,6 +176,7 @@ struct MonthlyView: View {
 struct ProjectView: View {
     @EnvironmentObject var manager: ClaudeUsageManager
     @EnvironmentObject var localizationManager: LocalizationManager
+    @EnvironmentObject var currencyManager: CurrencyManager
     
     var body: some View {
         ScrollView {
@@ -185,7 +188,7 @@ struct ProjectView: View {
                                 .font(.headline)
                                 .lineLimit(2)
                             Spacer()
-                            Text(String(format: "$%.2f", item.cost))
+                            Text(currencyManager.formatAmount(item.cost, language: localizationManager.currentLanguage))
                                 .font(.headline)
                                 .foregroundColor(.green)
                         }

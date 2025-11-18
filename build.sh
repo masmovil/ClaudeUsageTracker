@@ -14,6 +14,7 @@ swiftc \
     ClaudeUsageManager.swift \
     LocalizationManager.swift \
     PricingManager.swift \
+    CurrencyManager.swift \
     SettingsView.swift \
     MainView.swift
 

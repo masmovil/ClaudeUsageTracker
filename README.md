@@ -30,8 +30,9 @@
   - Output tokens
 - **⚙️ Configurable Pricing** - Adjust pricing for different Claude models and context windows
 - **🌍 Multi-language** - Switch between English 🇺🇸 and Spanish 🇪🇸
+- **💱 Currency Conversion** - Automatically shows costs in EUR (€) when Spanish is selected, using daily exchange rates
 - **🖥️ Native macOS** - Built with SwiftUI, lightweight and fast
-- **🔒 Privacy-first** - All data stays local, no internet connection required
+- **🔒 Privacy-first** - All usage data stays local (only fetches exchange rate once per day)
 
 ---
 
