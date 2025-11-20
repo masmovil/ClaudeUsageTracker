@@ -11,7 +11,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/platform-macOS%2013.0+-blue" alt="Platform"/>
   <img src="https://img.shields.io/badge/Swift-5.9-orange" alt="Swift"/>
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="License"/>
+  <img src="https://img.shields.io/badge/license-Personal%20Use%20Only-green" alt="License"/>
+  <img src="https://img.shields.io/badge/author-Sergio%20Ba%C3%B1uls-blue" alt="Author"/>
 </p>
 
 ---
@@ -406,7 +407,19 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **Personal Use License (Non-Commercial)** - see the [LICENSE](LICENSE) file for details.
+
+**Copyright © 2025 Sergio Bañuls**
+
+This software is provided for **personal use only**. Commercial use is strictly prohibited without prior written permission from the author.
+
+---
+
+## 👨‍💻 Author
+
+**Sergio Bañuls** - *Original Author and Creator*
+
+This project was created and is maintained by Sergio Bañuls to help the Claude Code community track their API usage efficiently.
 
 ---
 

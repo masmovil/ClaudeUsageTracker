@@ -2,6 +2,18 @@
 
 Thank you for your interest in contributing! This document provides guidelines for contributing to this project.
 
+## 📜 License Notice
+
+**Copyright © 2025 Sergio Bañuls**
+
+This project is licensed under a **Personal Use License (Non-Commercial)**. By contributing, you agree that:
+- Your contributions will be licensed under the same Personal Use License
+- Sergio Bañuls retains copyright as the original author
+- All contributions must respect the non-commercial nature of this project
+- Commercial use requires explicit permission from the copyright holder
+
+Please review the [LICENSE](LICENSE) file before contributing.
+
 ## 🚀 Quick Start
 
 1. Fork the repository
