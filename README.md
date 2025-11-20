@@ -409,7 +409,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 This project is licensed under the **Personal Use License (Non-Commercial)** - see the [LICENSE](LICENSE) file for details.
 
-**Copyright © 2025 Sergio Bañuls**
+**Copyright © 2025 [Sergio Bañuls](https://github.com/SergioBanuls)**
 
 This software is provided for **personal use only**. Commercial use is strictly prohibited without prior written permission from the author.
 
@@ -417,9 +417,9 @@ This software is provided for **personal use only**. Commercial use is strictly 
 
 ## 👨‍💻 Author
 
-**Sergio Bañuls** - *Original Author and Creator*
+**[Sergio Bañuls](https://github.com/SergioBanuls)** - *Original Author and Creator*
 
-This project was created and is maintained by Sergio Bañuls to help the Claude Code community track their API usage efficiently.
+This project was created and is maintained by [Sergio Bañuls](https://github.com/SergioBanuls) to help the Claude Code community track their API usage efficiently.
 
 ---
 
