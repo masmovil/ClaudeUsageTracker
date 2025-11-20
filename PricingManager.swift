@@ -1,3 +1,11 @@
+//
+//  PricingManager.swift
+//  Claude Usage Tracker
+//
+//  Copyright © 2025 Sergio Bañuls. All rights reserved.
+//  Licensed under Personal Use License (Non-Commercial)
+//
+
 import Foundation
 import Combine
 
