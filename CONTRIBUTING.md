@@ -53,27 +53,92 @@ Before submitting a PR:
 
 ## 🐛 Bug Reports
 
-When reporting bugs, please include:
-- macOS version
-- Steps to reproduce
-- Expected behavior
-- Actual behavior
-- Screenshots if applicable
+We use GitHub issue templates to make bug reporting easier and more structured.
+
+**To report a bug:**
+1. Go to [Issues](../../issues/new/choose)
+2. Select **"Bug Report"** template
+3. Fill in all required sections:
+   - Bug description
+   - Steps to reproduce
+   - Expected vs actual behavior
+   - Environment details (macOS version, app version, etc.)
+   - Screenshots if applicable
+
+**The template will guide you through providing:**
+- Detailed reproduction steps
+- Your system configuration
+- Whether you're using API or local mode
+- Troubleshooting steps you've already tried
+- Relevant logs from Console.app
 
 ## 💡 Feature Requests
 
-We welcome feature requests! Please:
-- Check if the feature already exists or is planned
-- Explain the use case
-- Describe the expected behavior
+We welcome feature requests! We have a dedicated template to help you submit comprehensive proposals.
+
+**To request a feature:**
+1. Go to [Issues](../../issues/new/choose)
+2. Select **"Feature Request"** template
+3. Describe:
+   - The problem you're trying to solve
+   - Your proposed solution
+   - Alternative approaches you've considered
+   - Your use case and how often you'd use it
+   - Implementation ideas (if you have technical knowledge)
+
+**Before submitting:**
+- Search [existing issues](../../issues) to avoid duplicates
+- Check if it's already planned in project roadmap
+- Consider if it aligns with the project's purpose
+
+## ❓ Questions
+
+For general questions about using the app:
+1. Check the [README](README.md) and [Installation Guide](INSTALL.md) first
+2. Search [existing issues](../../issues) and [discussions](../../discussions)
+3. If still unsure, use the **"Question"** issue template
+4. For community discussions, prefer [GitHub Discussions](../../discussions)
 
 ## 🔍 Pull Request Process
 
-1. Update README.md if needed
-2. Test thoroughly on macOS
-3. Ensure the app builds without errors
-4. Update documentation for new features
-5. Request review from maintainers
+We have a comprehensive Pull Request template to ensure quality contributions.
+
+**Before creating a PR:**
+1. Fork the repository and create your feature branch
+2. Make your changes following our code style guidelines
+3. Test thoroughly on macOS (see Testing section above)
+4. Update documentation if needed (README, comments, etc.)
+5. Ensure the app builds without errors: `./build.sh`
+
+**When submitting a PR:**
+1. Go to [Pull Requests](../../pulls)
+2. Click "New Pull Request"
+3. Our template will automatically load - **fill in all sections:**
+   - Description and related issue number
+   - Type of change (bug fix, feature, etc.)
+   - Testing performed and results
+   - Checklist items (code quality, functionality, documentation)
+   - Screenshots (if applicable)
+   - License compliance confirmation
+
+**The PR template includes:**
+- ✅ Code quality checklist
+- ✅ Functionality verification steps
+- ✅ Documentation requirements
+- ✅ License compliance acknowledgment
+- ✅ Testing checklist specific to this app
+
+**After submission:**
+1. Wait for automated checks to pass (if any)
+2. Respond to review feedback promptly
+3. Make requested changes in new commits
+4. Request re-review once changes are made
+
+**Review Process:**
+- Maintainers will review your code for quality and functionality
+- You may be asked to make changes
+- Once approved, your PR will be merged
+- Thank you for your contribution!
 
 ## 📧 Questions?
 
