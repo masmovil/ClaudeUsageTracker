@@ -21,7 +21,7 @@ You need Homebrew installed. If you don't have it:
 **Option A: Two commands**
 ```bash
 # Add the tap
-brew tap SergioBanuls/claudeusagetracker
+brew tap masmovil/claudeusagetracker
 
 # Install the app
 brew install --cask claudeusagetracker
@@ -29,7 +29,7 @@ brew install --cask claudeusagetracker
 
 **Option B: One command**
 ```bash
-brew install --cask SergioBanuls/claudeusagetracker/claudeusagetracker
+brew install --cask masmovil/claudeusagetracker/claudeusagetracker
 ```
 
 ### After Installation
@@ -64,7 +64,7 @@ If you prefer not to use Homebrew, you can install manually:
 
 ### Step 1: Download the App
 
-1. Go to the [**Releases page**](https://github.com/SergioBanuls/ClaudeUsageTracker/releases/latest)
+1. Go to the [**Releases page**](https://github.com/masmovil/ClaudeUsageTracker/releases/latest)
 2. Download the latest `ClaudeUsageTracker-vX.X.X.dmg` file
 3. The file will download to your `Downloads` folder
 
@@ -157,7 +157,7 @@ Click **"Install"** when prompted.
 
 ```bash
 # Clone the repository
-git clone https://github.com/SergioBanuls/ClaudeUsageTracker.git
+git clone https://github.com/masmovil/ClaudeUsageTracker.git
 
 # Navigate to the folder
 cd ClaudeUsageTracker
@@ -347,8 +347,8 @@ To completely remove the app:
 If you're still having issues:
 
 1. Check the [**Troubleshooting section**](README.md#-troubleshooting) in the README
-2. Search [**existing issues**](https://github.com/SergioBanuls/ClaudeUsageTracker/issues) on GitHub
-3. [**Open a new issue**](https://github.com/SergioBanuls/ClaudeUsageTracker/issues/new) with:
+2. Search [**existing issues**](https://github.com/masmovil/ClaudeUsageTracker/issues) on GitHub
+3. [**Open a new issue**](https://github.com/masmovil/ClaudeUsageTracker/issues/new) with:
    - Your macOS version (`sw_vers`)
    - The problem you're experiencing
    - Steps you've already tried

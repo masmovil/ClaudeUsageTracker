@@ -68,7 +68,7 @@ Step 3: Open the App
 → Look for the 💰 icon in your menu bar
 
 For detailed instructions and troubleshooting:
-https://github.com/SergioBanuls/ClaudeUsageTracker
+https://github.com/masmovil/ClaudeUsageTracker
 
 Enjoy tracking your Claude Code usage! 🎉
 EOF
