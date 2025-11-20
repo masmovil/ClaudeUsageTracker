@@ -102,7 +102,7 @@ git add .
 git commit -m "Initial release v1.0.0"
 
 # Add remote (replace with your repo URL)
-git remote add origin https://github.com/SergioBanuls/ClaudeUsageTracker.git
+git remote add origin https://github.com/masmovil/ClaudeUsageTracker.git
 
 # Push to GitHub
 git branch -M main
@@ -138,7 +138,7 @@ git push -u origin main
 
 Make sure the README has the correct GitHub repository URL:
 
-1. Search for `SergioBanuls` in README.md
+1. Search for `masmovil` in README.md
 2. Replace with your actual GitHub username
 3. Commit and push:
    ```bash
@@ -298,7 +298,7 @@ For critical bugs:
 If you need help with publishing:
 
 1. Check [GitHub Docs on Releases](https://docs.github.com/en/repositories/releasing-projects-on-github)
-2. Ask in [GitHub Discussions](https://github.com/SergioBanuls/ClaudeUsageTracker/discussions)
+2. Ask in [GitHub Discussions](https://github.com/masmovil/ClaudeUsageTracker/discussions)
 3. Open an issue for build/release problems
 
 ---

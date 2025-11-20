@@ -60,7 +60,7 @@ $(cat release/${DMG_NAME}.sha256)
 
 ---
 
-**Full Changelog**: https://github.com/SergioBanuls/ClaudeUsageTracker/compare/v${VERSION}...v${VERSION}
+**Full Changelog**: https://github.com/masmovil/ClaudeUsageTracker/compare/v${VERSION}...v${VERSION}
 EOF
 
 echo ""
@@ -79,7 +79,7 @@ echo "   2. Verify checksum:"
 echo "      cd release && shasum -a 256 -c ${DMG_NAME}.sha256"
 echo ""
 echo "   3. Create a GitHub release:"
-echo "      - Go to https://github.com/SergioBanuls/ClaudeUsageTracker/releases/new"
+echo "      - Go to https://github.com/masmovil/ClaudeUsageTracker/releases/new"
 echo "      - Tag version: v${VERSION}"
 echo "      - Upload: release/${DMG_NAME}"
 echo "      - Copy contents from: release/RELEASE_NOTES.md"

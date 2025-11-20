@@ -105,7 +105,7 @@ Configure pricing and API integration:
 
 ```bash
 # Add the tap
-brew tap SergioBanuls/claudeusagetracker
+brew tap masmovil/claudeusagetracker
 
 # Install the app
 brew install --cask claudeusagetracker
@@ -113,7 +113,7 @@ brew install --cask claudeusagetracker
 
 **Or install in one command:**
 ```bash
-brew install --cask SergioBanuls/claudeusagetracker/claudeusagetracker
+brew install --cask masmovil/claudeusagetracker/claudeusagetracker
 ```
 
 **Benefits:**
@@ -153,7 +153,7 @@ brew update && brew upgrade claudeusagetracker
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/SergioBanuls/ClaudeUsageTracker.git
+   git clone https://github.com/masmovil/ClaudeUsageTracker.git
    cd ClaudeUsageTracker
    ```
 
