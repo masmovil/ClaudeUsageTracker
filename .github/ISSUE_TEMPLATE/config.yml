@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 💬 GitHub Discussions
-    url: https://github.com/masmovil/ClaudeUsageTracker/discussions
+    url: https://github.com/masorange/ClaudeUsageTracker/discussions
     about: Ask questions and discuss ideas with the community
   - name: 📖 Documentation
-    url: https://github.com/masmovil/ClaudeUsageTracker#readme
+    url: https://github.com/masorange/ClaudeUsageTracker#readme
     about: Read the full documentation and guides
   - name: 🔧 Troubleshooting
-    url: https://github.com/masmovil/ClaudeUsageTracker#-troubleshooting
+    url: https://github.com/masorange/ClaudeUsageTracker#-troubleshooting
     about: Common problems and solutions
