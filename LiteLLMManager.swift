@@ -132,6 +132,27 @@ class LiteLLMManager: ObservableObject {
             monthlyDict[monthKey] = monthBreakdown
         }
 
+        // Calculate estimated individual costs proportionally for each month
+        for (monthKey, var breakdown) in monthlyDict {
+            // Calculate theoretical cost using standard pricing (as reference)
+            let theoreticalInputCost = Double(breakdown.inputTokens) * 0.000003
+            let theoreticalCacheCreationCost = Double(breakdown.cacheCreationTokens) * 0.00000375
+            let theoreticalCacheReadCost = Double(breakdown.cacheReadTokens) * 0.0000003
+            let theoreticalOutputCost = Double(breakdown.outputTokens) * 0.000015
+            let theoreticalTotalCost = theoreticalInputCost + theoreticalCacheCreationCost + theoreticalCacheReadCost + theoreticalOutputCost
+
+            // Calculate adjustment factor to match real API cost
+            let adjustmentFactor = theoreticalTotalCost > 0 ? breakdown.accumulatedCost / theoreticalTotalCost : 1.0
+
+            // Apply adjustment factor to get estimated costs that sum to real API cost
+            breakdown.estimatedInputCost = theoreticalInputCost * adjustmentFactor
+            breakdown.estimatedCacheCreationCost = theoreticalCacheCreationCost * adjustmentFactor
+            breakdown.estimatedCacheReadCost = theoreticalCacheReadCost * adjustmentFactor
+            breakdown.estimatedOutputCost = theoreticalOutputCost * adjustmentFactor
+
+            monthlyDict[monthKey] = breakdown
+        }
+
         // Convert to array and sort by month (newest first)
         let monthlyData = monthlyDict.map { (month, breakdown) in
             return (month: month, cost: breakdown.accumulatedCost, details: breakdown)

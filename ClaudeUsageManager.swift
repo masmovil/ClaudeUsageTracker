@@ -35,6 +35,12 @@ class ClaudeUsageManager: ObservableObject {
         var outputTokens: Int = 0
         var maxContextSize: Int = 0 // Maximum context size of any single message (for reference only)
         var accumulatedCost: Double = 0.0 // Cost calculated message by message with correct pricing tier
+
+        // Estimated individual costs (used when data comes from API)
+        var estimatedInputCost: Double? = nil
+        var estimatedCacheCreationCost: Double? = nil
+        var estimatedCacheReadCost: Double? = nil
+        var estimatedOutputCost: Double? = nil
     }
     
     // Process a turn (group of consecutive assistant messages) and count it as ONE billable event

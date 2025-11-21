@@ -1,0 +1,36 @@
+Claude Usage Tracker - Installation Instructions
+
+IMPORTANT: macOS Security Notice
+==================================
+Since this app is not signed with an Apple Developer certificate,
+macOS will block it by default with a "damaged" error message.
+
+Quick Installation (3 steps):
+==============================
+
+Step 1: Install to Applications
+---------------------------------
+→ Drag ClaudeUsageTracker.app to the Applications folder shortcut
+→ Wait for the copy to complete
+
+Step 2: Remove Security Block
+-------------------------------
+→ Open Terminal (Applications > Utilities > Terminal)
+→ Copy and paste this command:
+
+   xattr -cr /Applications/ClaudeUsageTracker.app
+
+→ Press Enter
+
+Step 3: Open the App
+---------------------
+→ Go to Applications folder (⌘ + Shift + A)
+→ Right-click ClaudeUsageTracker.app
+→ Select "Open" from the menu
+→ Click "Open" again when the warning appears
+→ Look for the 💰 icon in your menu bar
+
+For detailed instructions and troubleshooting:
+https://github.com/masorange/ClaudeUsageTracker
+
+Enjoy tracking your Claude Code usage! 🎉
