@@ -46,17 +46,23 @@ struct MainView: View {
                 for item in manager.monthlyData {
                     let formattedMonth = manager.formatMonth(item.month)
 
+                    // Calculate costs (use estimated if available, otherwise calculate)
+                    let inputCost = item.details.estimatedInputCost ?? (Double(item.details.inputTokens) * 0.000003)
+                    let cacheCreationCost = item.details.estimatedCacheCreationCost ?? (Double(item.details.cacheCreationTokens) * 0.00000375)
+                    let cacheReadCost = item.details.estimatedCacheReadCost ?? (Double(item.details.cacheReadTokens) * 0.0000003)
+                    let outputCost = item.details.estimatedOutputCost ?? (Double(item.details.outputTokens) * 0.000015)
+
                     // Input tokens row
-                    csvContent += "\"\(formattedMonth)\",Input,\(item.details.inputTokens),\(String(format: "%.2f", Double(item.details.inputTokens) * 0.000003))\n"
+                    csvContent += "\"\(formattedMonth)\",Input,\(item.details.inputTokens),\(String(format: "%.2f", inputCost))\n"
 
                     // Cache creation row
-                    csvContent += "\"\(formattedMonth)\",Cache Creation,\(item.details.cacheCreationTokens),\(String(format: "%.2f", Double(item.details.cacheCreationTokens) * 0.00000375))\n"
+                    csvContent += "\"\(formattedMonth)\",Cache Creation,\(item.details.cacheCreationTokens),\(String(format: "%.2f", cacheCreationCost))\n"
 
                     // Cache read row
-                    csvContent += "\"\(formattedMonth)\",Cache Read,\(item.details.cacheReadTokens),\(String(format: "%.2f", Double(item.details.cacheReadTokens) * 0.0000003))\n"
+                    csvContent += "\"\(formattedMonth)\",Cache Read,\(item.details.cacheReadTokens),\(String(format: "%.2f", cacheReadCost))\n"
 
                     // Output tokens row
-                    csvContent += "\"\(formattedMonth)\",Output,\(item.details.outputTokens),\(String(format: "%.2f", Double(item.details.outputTokens) * 0.000015))\n"
+                    csvContent += "\"\(formattedMonth)\",Output,\(item.details.outputTokens),\(String(format: "%.2f", outputCost))\n"
 
                     // Total row for the month
                     csvContent += "\"\(formattedMonth)\",TOTAL,-,\(String(format: "%.2f", item.cost))\n"
@@ -74,17 +80,23 @@ struct MainView: View {
                 for item in manager.projectData {
                     let escapedProject = item.project
 
+                    // Calculate costs (use estimated if available, otherwise calculate)
+                    let inputCost = item.details.estimatedInputCost ?? (Double(item.details.inputTokens) * 0.000003)
+                    let cacheCreationCost = item.details.estimatedCacheCreationCost ?? (Double(item.details.cacheCreationTokens) * 0.00000375)
+                    let cacheReadCost = item.details.estimatedCacheReadCost ?? (Double(item.details.cacheReadTokens) * 0.0000003)
+                    let outputCost = item.details.estimatedOutputCost ?? (Double(item.details.outputTokens) * 0.000015)
+
                     // Input tokens row
-                    csvContent += "\"\(escapedProject)\",Input,\(item.details.inputTokens),\(String(format: "%.2f", Double(item.details.inputTokens) * 0.000003))\n"
+                    csvContent += "\"\(escapedProject)\",Input,\(item.details.inputTokens),\(String(format: "%.2f", inputCost))\n"
 
                     // Cache creation row
-                    csvContent += "\"\(escapedProject)\",Cache Creation,\(item.details.cacheCreationTokens),\(String(format: "%.2f", Double(item.details.cacheCreationTokens) * 0.00000375))\n"
+                    csvContent += "\"\(escapedProject)\",Cache Creation,\(item.details.cacheCreationTokens),\(String(format: "%.2f", cacheCreationCost))\n"
 
                     // Cache read row
-                    csvContent += "\"\(escapedProject)\",Cache Read,\(item.details.cacheReadTokens),\(String(format: "%.2f", Double(item.details.cacheReadTokens) * 0.0000003))\n"
+                    csvContent += "\"\(escapedProject)\",Cache Read,\(item.details.cacheReadTokens),\(String(format: "%.2f", cacheReadCost))\n"
 
                     // Output tokens row
-                    csvContent += "\"\(escapedProject)\",Output,\(item.details.outputTokens),\(String(format: "%.2f", Double(item.details.outputTokens) * 0.000015))\n"
+                    csvContent += "\"\(escapedProject)\",Output,\(item.details.outputTokens),\(String(format: "%.2f", outputCost))\n"
 
                     // Total row for the project
                     csvContent += "\"\(escapedProject)\",TOTAL,-,\(String(format: "%.2f", item.cost))\n"
@@ -303,29 +315,33 @@ struct MonthlyView: View {
                             TokenRow(
                                 label: localizationManager.localized(.inputTokens),
                                 count: item.details.inputTokens,
-                                cost: Double(item.details.inputTokens) * 0.000003,
-                                color: .blue
+                                cost: item.details.estimatedInputCost ?? (Double(item.details.inputTokens) * 0.000003),
+                                color: .blue,
+                                isEstimated: item.details.estimatedInputCost != nil
                             )
 
                             TokenRow(
                                 label: localizationManager.localized(.cacheCreation),
                                 count: item.details.cacheCreationTokens,
-                                cost: Double(item.details.cacheCreationTokens) * 0.00000375,
-                                color: .orange
+                                cost: item.details.estimatedCacheCreationCost ?? (Double(item.details.cacheCreationTokens) * 0.00000375),
+                                color: .orange,
+                                isEstimated: item.details.estimatedCacheCreationCost != nil
                             )
 
                             TokenRow(
                                 label: localizationManager.localized(.cacheRead),
                                 count: item.details.cacheReadTokens,
-                                cost: Double(item.details.cacheReadTokens) * 0.0000003,
-                                color: .purple
+                                cost: item.details.estimatedCacheReadCost ?? (Double(item.details.cacheReadTokens) * 0.0000003),
+                                color: .purple,
+                                isEstimated: item.details.estimatedCacheReadCost != nil
                             )
 
                             TokenRow(
                                 label: localizationManager.localized(.outputTokens),
                                 count: item.details.outputTokens,
-                                cost: Double(item.details.outputTokens) * 0.000015,
-                                color: .red
+                                cost: item.details.estimatedOutputCost ?? (Double(item.details.outputTokens) * 0.000015),
+                                color: .red,
+                                isEstimated: item.details.estimatedOutputCost != nil
                             )
                         }
                         .padding()
@@ -486,29 +502,33 @@ struct ProjectView: View {
                             TokenRow(
                                 label: localizationManager.localized(.input),
                                 count: item.details.inputTokens,
-                                cost: Double(item.details.inputTokens) * 0.000003,
-                                color: .blue
+                                cost: item.details.estimatedInputCost ?? (Double(item.details.inputTokens) * 0.000003),
+                                color: .blue,
+                                isEstimated: item.details.estimatedInputCost != nil
                             )
 
                             TokenRow(
                                 label: localizationManager.localized(.cacheCreation),
                                 count: item.details.cacheCreationTokens,
-                                cost: Double(item.details.cacheCreationTokens) * 0.00000375,
-                                color: .orange
+                                cost: item.details.estimatedCacheCreationCost ?? (Double(item.details.cacheCreationTokens) * 0.00000375),
+                                color: .orange,
+                                isEstimated: item.details.estimatedCacheCreationCost != nil
                             )
 
                             TokenRow(
                                 label: localizationManager.localized(.cacheRead),
                                 count: item.details.cacheReadTokens,
-                                cost: Double(item.details.cacheReadTokens) * 0.0000003,
-                                color: .purple
+                                cost: item.details.estimatedCacheReadCost ?? (Double(item.details.cacheReadTokens) * 0.0000003),
+                                color: .purple,
+                                isEstimated: item.details.estimatedCacheReadCost != nil
                             )
 
                             TokenRow(
                                 label: localizationManager.localized(.output),
                                 count: item.details.outputTokens,
-                                cost: Double(item.details.outputTokens) * 0.000015,
-                                color: .red
+                                cost: item.details.estimatedOutputCost ?? (Double(item.details.outputTokens) * 0.000015),
+                                color: .red,
+                                isEstimated: item.details.estimatedOutputCost != nil
                             )
                         }
                         .padding()
@@ -527,7 +547,8 @@ struct TokenRow: View {
     let count: Int
     let cost: Double
     let color: Color
-    
+    let isEstimated: Bool
+
     var body: some View {
         HStack {
             Circle()
@@ -540,7 +561,7 @@ struct TokenRow: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
             Spacer()
-            Text(String(format: "$%.2f", cost))
+            Text((isEstimated ? "~" : "") + String(format: "$%.2f", cost))
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
