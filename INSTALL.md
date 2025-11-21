@@ -24,7 +24,7 @@ You need Homebrew installed. If you don't have it:
 brew tap masorange/claudeusagetracker
 
 # Install the app
-brew install --cask claudeusagetracker
+brew install --cask masorange/claudeusagetracker/claudeusagetracker
 ```
 
 **Option B: One command**
@@ -45,13 +45,13 @@ brew install --cask masorange/claudeusagetracker/claudeusagetracker
 brew update
 
 # Upgrade the app
-brew upgrade claudeusagetracker
+brew upgrade --cask masorange/claudeusagetracker/claudeusagetracker
 ```
 
 ### Uninstall
 
 ```bash
-brew uninstall --cask claudeusagetracker
+brew uninstall --cask masorange/claudeusagetracker/claudeusagetracker
 ```
 
 **🎉 That's it! Skip to the [Usage section](#-next-steps)**

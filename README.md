@@ -108,7 +108,7 @@ Configure pricing and API integration:
 brew tap masorange/claudeusagetracker
 
 # Install the app
-brew install --cask claudeusagetracker
+brew install --cask masorange/claudeusagetracker/claudeusagetracker
 ```
 
 **Or install in one command:**
@@ -118,12 +118,12 @@ brew install --cask masorange/claudeusagetracker/claudeusagetracker
 
 **Benefits:**
 - ✅ No need to run `xattr` manually - Homebrew automatically removes quarantine
-- ✅ Easy updates: `brew update && brew upgrade claudeusagetracker`
-- ✅ Clean uninstall: `brew uninstall --cask claudeusagetracker`
+- ✅ Easy updates: `brew update && brew upgrade --cask masorange/claudeusagetracker/claudeusagetracker`
+- ✅ Clean uninstall: `brew uninstall --cask masorange/claudeusagetracker/claudeusagetracker`
 
 **To update to the latest version:**
 ```bash
-brew update && brew upgrade claudeusagetracker
+brew update && brew upgrade --cask masorange/claudeusagetracker/claudeusagetracker
 ```
 
 **Important:** Always run `brew update` before `brew upgrade` to ensure Homebrew knows about the latest version. The command above does both in one line.
