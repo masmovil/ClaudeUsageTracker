@@ -58,9 +58,9 @@ cat > "ClaudeUsageTracker.app/Contents/Info.plist" << 'EOF'
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>1.4.0</string>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>5</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>LSUIElement</key>
@@ -68,7 +68,7 @@ cat > "ClaudeUsageTracker.app/Contents/Info.plist" << 'EOF'
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2025</string>
+    <string>Copyright © 2025 Sergio Bañuls</string>
 </dict>
 </plist>
 EOF

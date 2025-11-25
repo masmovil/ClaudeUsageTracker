@@ -21,10 +21,11 @@
 
 - **🔌 LiteLLM API Integration** - Connect to your company's LiteLLM API for exact usage data
   - Real-time cost tracking from API (no calculations needed)
-  - Today's spend monitoring
-  - Budget reset date display
-  - Automatic fallback to local calculation if API is unavailable
+  - **Advanced Model Breakdown**: Get exact costs for every model used (Claude, Gemini, Vertex AI, etc.)
+  - Today's spend monitoring & Budget reset date
+  - **🛡️ Anti-Flicker Protection**: Smart algorithm prevents price drops when API glitches occur
   - Clear data source indicator (API/Local)
+- **🤖 Model Tracking** - See exactly which AI models are driving your costs
 - **🎯 Accurate Cost Tracking** - Properly groups tool calls and calculates costs per conversation turn
 - **📊 Real-time Monitoring** - Current month cost visible in your menu bar
 - **🔄 Smart Updates** - Automatic silent updates every minute, manual refresh with visual feedback
@@ -36,7 +37,7 @@
   - Cache creation (write) tokens
   - Cache read tokens
   - Output tokens
-- **📤 CSV Export** - Export your data in clean CSV format (by month or by project)
+- **📤 CSV Export** - Export your data in clean CSV format (by month, project, or model)
 - **⚙️ Configurable Pricing** - Adjust pricing for different Claude models and context windows
 - **🌍 Multi-language** - Switch between English 🇺🇸 and Spanish 🇪🇸
 - **💱 Currency Conversion** - Automatically shows costs in EUR (€) when Spanish is selected, using daily exchange rates
@@ -235,9 +236,10 @@ Without proper turn grouping, tool-heavy conversations could be counted 2-3× hi
 - Displays budget reset date
 - Updates automatically with each refresh
 
-**Two tabs:**
+**Three tabs:**
 1. **By Month** 📅 - Monthly breakdown with detailed token metrics (paginated, 2 months per page)
 2. **By Project** 📁 - Project-based cost analysis (always uses local data)
+3. **By Model** 🤖 - Cost breakdown by specific model (Claude 3.5, Gemini Pro, etc.)
 
 **Controls:**
 - **📤 Export** - Export current view to CSV file

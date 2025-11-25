@@ -46,67 +46,89 @@ struct MainView: View {
                 for item in manager.monthlyData {
                     let formattedMonth = manager.formatMonth(item.month)
 
-                    // Calculate costs (use estimated if available, otherwise calculate)
+                    // Calculate costs
                     let inputCost = item.details.estimatedInputCost ?? (Double(item.details.inputTokens) * 0.000003)
                     let cacheCreationCost = item.details.estimatedCacheCreationCost ?? (Double(item.details.cacheCreationTokens) * 0.00000375)
                     let cacheReadCost = item.details.estimatedCacheReadCost ?? (Double(item.details.cacheReadTokens) * 0.0000003)
                     let outputCost = item.details.estimatedOutputCost ?? (Double(item.details.outputTokens) * 0.000015)
+                    
+                    let inputCostStr = String(format: "%.2f", inputCost)
+                    let cacheCreationCostStr = String(format: "%.2f", cacheCreationCost)
+                    let cacheReadCostStr = String(format: "%.2f", cacheReadCost)
+                    let outputCostStr = String(format: "%.2f", outputCost)
+                    let totalCostStr = String(format: "%.2f", item.cost)
 
-                    // Input tokens row
-                    csvContent += "\"\(formattedMonth)\",Input,\(item.details.inputTokens),\(String(format: "%.2f", inputCost))\n"
-
-                    // Cache creation row
-                    csvContent += "\"\(formattedMonth)\",Cache Creation,\(item.details.cacheCreationTokens),\(String(format: "%.2f", cacheCreationCost))\n"
-
-                    // Cache read row
-                    csvContent += "\"\(formattedMonth)\",Cache Read,\(item.details.cacheReadTokens),\(String(format: "%.2f", cacheReadCost))\n"
-
-                    // Output tokens row
-                    csvContent += "\"\(formattedMonth)\",Output,\(item.details.outputTokens),\(String(format: "%.2f", outputCost))\n"
-
-                    // Total row for the month
-                    csvContent += "\"\(formattedMonth)\",TOTAL,-,\(String(format: "%.2f", item.cost))\n"
-
+                    csvContent += "\"\(formattedMonth)\",Input,\(item.details.inputTokens),\(inputCostStr)\n"
+                    csvContent += "\"\(formattedMonth)\",Cache Creation,\(item.details.cacheCreationTokens),\(cacheCreationCostStr)\n"
+                    csvContent += "\"\(formattedMonth)\",Cache Read,\(item.details.cacheReadTokens),\(cacheReadCostStr)\n"
+                    csvContent += "\"\(formattedMonth)\",Output,\(item.details.outputTokens),\(outputCostStr)\n"
+                    csvContent += "\"\(formattedMonth)\",TOTAL,-,\(totalCostStr)\n"
                     csvContent += "\n"
                 }
+                
+                let grandTotalStr = String(format: "%.2f", manager.totalCost)
+                csvContent += "GRAND TOTAL,-,-,\(grandTotalStr)\n"
 
-                // Grand total
-                csvContent += "GRAND TOTAL,-,-,\(String(format: "%.2f", manager.totalCost))\n"
-
-            } else {
+            } else if selectedTab == 1 {
                 // Export Project Data
                 csvContent += "Project,Token Type,Tokens,Cost ($)\n"
 
                 for item in manager.projectData {
                     let escapedProject = item.project
 
-                    // Calculate costs (use estimated if available, otherwise calculate)
+                    // Calculate costs
                     let inputCost = item.details.estimatedInputCost ?? (Double(item.details.inputTokens) * 0.000003)
                     let cacheCreationCost = item.details.estimatedCacheCreationCost ?? (Double(item.details.cacheCreationTokens) * 0.00000375)
                     let cacheReadCost = item.details.estimatedCacheReadCost ?? (Double(item.details.cacheReadTokens) * 0.0000003)
                     let outputCost = item.details.estimatedOutputCost ?? (Double(item.details.outputTokens) * 0.000015)
+                    
+                    let inputCostStr = String(format: "%.2f", inputCost)
+                    let cacheCreationCostStr = String(format: "%.2f", cacheCreationCost)
+                    let cacheReadCostStr = String(format: "%.2f", cacheReadCost)
+                    let outputCostStr = String(format: "%.2f", outputCost)
+                    let totalCostStr = String(format: "%.2f", item.cost)
 
-                    // Input tokens row
-                    csvContent += "\"\(escapedProject)\",Input,\(item.details.inputTokens),\(String(format: "%.2f", inputCost))\n"
-
-                    // Cache creation row
-                    csvContent += "\"\(escapedProject)\",Cache Creation,\(item.details.cacheCreationTokens),\(String(format: "%.2f", cacheCreationCost))\n"
-
-                    // Cache read row
-                    csvContent += "\"\(escapedProject)\",Cache Read,\(item.details.cacheReadTokens),\(String(format: "%.2f", cacheReadCost))\n"
-
-                    // Output tokens row
-                    csvContent += "\"\(escapedProject)\",Output,\(item.details.outputTokens),\(String(format: "%.2f", outputCost))\n"
-
-                    // Total row for the project
-                    csvContent += "\"\(escapedProject)\",TOTAL,-,\(String(format: "%.2f", item.cost))\n"
-
+                    csvContent += "\"\(escapedProject)\",Input,\(item.details.inputTokens),\(inputCostStr)\n"
+                    csvContent += "\"\(escapedProject)\",Cache Creation,\(item.details.cacheCreationTokens),\(cacheCreationCostStr)\n"
+                    csvContent += "\"\(escapedProject)\",Cache Read,\(item.details.cacheReadTokens),\(cacheReadCostStr)\n"
+                    csvContent += "\"\(escapedProject)\",Output,\(item.details.outputTokens),\(outputCostStr)\n"
+                    csvContent += "\"\(escapedProject)\",TOTAL,-,\(totalCostStr)\n"
                     csvContent += "\n"
                 }
 
-                // Grand total
-                csvContent += "GRAND TOTAL,-,-,\(String(format: "%.2f", manager.totalCost))\n"
-            }
+                let grandTotalStr = String(format: "%.2f", manager.totalCost)
+                csvContent += "GRAND TOTAL,-,-,\(grandTotalStr)\n"
+                
+            } else {
+                 // Export Model Data
+                 csvContent += "Model,Token Type,Tokens,Cost ($)\n"
+
+                 for item in manager.modelData {
+                     let escapedModel = item.model
+
+                     // Calculate costs
+                     let inputCost = Double(item.details.inputTokens) * 0.000003
+                     let cacheCreationCost = Double(item.details.cacheCreationTokens) * 0.00000375
+                     let cacheReadCost = Double(item.details.cacheReadTokens) * 0.0000003
+                     let outputCost = Double(item.details.outputTokens) * 0.000015
+                     
+                     let inputCostStr = String(format: "%.2f", inputCost)
+                     let cacheCreationCostStr = String(format: "%.2f", cacheCreationCost)
+                     let cacheReadCostStr = String(format: "%.2f", cacheReadCost)
+                     let outputCostStr = String(format: "%.2f", outputCost)
+                     let totalCostStr = String(format: "%.2f", item.cost)
+
+                     csvContent += "\"\(escapedModel)\",Input,\(item.details.inputTokens),\(inputCostStr)\n"
+                     csvContent += "\"\(escapedModel)\",Cache Creation,\(item.details.cacheCreationTokens),\(cacheCreationCostStr)\n"
+                     csvContent += "\"\(escapedModel)\",Cache Read,\(item.details.cacheReadTokens),\(cacheReadCostStr)\n"
+                     csvContent += "\"\(escapedModel)\",Output,\(item.details.outputTokens),\(outputCostStr)\n"
+                     csvContent += "\"\(escapedModel)\",TOTAL,-,\(totalCostStr)\n"
+                     csvContent += "\n"
+                 }
+
+                 let grandTotalStr = String(format: "%.2f", manager.totalCost)
+                 csvContent += "GRAND TOTAL,-,-,\(grandTotalStr)\n"
+             }
 
             do {
                 try csvContent.write(to: url, atomically: true, encoding: .utf8)
@@ -163,7 +185,8 @@ struct MainView: View {
 
                 // Language selector
                 Menu {
-                    ForEach(LocalizationManager.Language.allCases, id: \.self) { language in
+                    ForEach(LocalizationManager.Language.allCases, id: \.self) {
+                        language in
                         Button(action: {
                             localizationManager.currentLanguage = language
                         }) {
@@ -244,6 +267,7 @@ struct MainView: View {
             Picker("", selection: $selectedTab) {
                 Text(localizationManager.localized(.byMonth)).tag(0)
                 Text(localizationManager.localized(.byProject)).tag(1)
+                Text(localizationManager.currentLanguage == .english ? "By Model" : "Por Modelo").tag(2)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
@@ -253,11 +277,13 @@ struct MainView: View {
             // Content
             if selectedTab == 0 {
                 MonthlyView()
-            } else {
+            } else if selectedTab == 1 {
                 ProjectView()
+            } else {
+                ModelView()
             }
             
-            Divider()
+            Divider() 
             
             // Footer
             HStack {
@@ -301,7 +327,8 @@ struct MonthlyView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    ForEach(paginatedData, id: \.month) { item in
+                    ForEach(paginatedData, id: \.month) {
+                        item in
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text("📅 \(manager.formatMonth(item.month))")
@@ -487,10 +514,101 @@ struct ProjectView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    ForEach(manager.projectData, id: \.project) { item in
+                    ForEach(manager.projectData, id: \.project) {
+                        item in
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text("📁 \(item.project)")
+                                    .font(.headline)
+                                    .lineLimit(2)
+                                Spacer()
+                                Text(currencyManager.formatAmount(item.cost, language: localizationManager.currentLanguage))
+                                    .font(.headline)
+                                    .foregroundColor(.green)
+                            }
+
+                            TokenRow(
+                                label: localizationManager.localized(.input),
+                                count: item.details.inputTokens,
+                                cost: item.details.estimatedInputCost ?? (Double(item.details.inputTokens) * 0.000003),
+                                color: .blue,
+                                isEstimated: item.details.estimatedInputCost != nil
+                            )
+
+                            TokenRow(
+                                label: localizationManager.localized(.cacheCreation),
+                                count: item.details.cacheCreationTokens,
+                                cost: item.details.estimatedCacheCreationCost ?? (Double(item.details.cacheCreationTokens) * 0.00000375),
+                                color: .orange,
+                                isEstimated: item.details.estimatedCacheCreationCost != nil
+                            )
+
+                            TokenRow(
+                                label: localizationManager.localized(.cacheRead),
+                                count: item.details.cacheReadTokens,
+                                cost: item.details.estimatedCacheReadCost ?? (Double(item.details.cacheReadTokens) * 0.0000003),
+                                color: .purple,
+                                isEstimated: item.details.estimatedCacheReadCost != nil
+                            )
+
+                            TokenRow(
+                                label: localizationManager.localized(.output),
+                                count: item.details.outputTokens,
+                                cost: item.details.estimatedOutputCost ?? (Double(item.details.outputTokens) * 0.000015),
+                                color: .red,
+                                isEstimated: item.details.estimatedOutputCost != nil
+                            )
+                        }
+                        .padding()
+                        .background(Color.secondary.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+                }
+                .padding()
+            }
+        }
+    }
+}
+
+struct ModelView: View {
+    @EnvironmentObject var manager: ClaudeUsageManager
+    @EnvironmentObject var localizationManager: LocalizationManager
+    @EnvironmentObject var currencyManager: CurrencyManager
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Warning about data source
+            HStack(spacing: 8) {
+                Image(systemName: manager.dataSource == .api ? "cloud.fill" : "info.circle.fill")
+                    .foregroundColor(manager.dataSource == .api ? .green : .blue)
+                
+                if manager.dataSource == .api {
+                    Text(localizationManager.currentLanguage == .english ?
+                         "Model data retrieved from LiteLLM API" :
+                         "Datos de modelos obtenidos de la API LiteLLM")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    Text(localizationManager.currentLanguage == .english ?
+                         "Model data calculated from local files" :
+                         "Datos de modelos calculados de archivos locales")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(manager.dataSource == .api ? Color.green.opacity(0.1) : Color.blue.opacity(0.1))
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    ForEach(manager.modelData, id: \.model) {
+                        item in
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("🤖 \(item.model)")
                                     .font(.headline)
                                     .lineLimit(2)
                                 Spacer()

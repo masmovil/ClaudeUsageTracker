@@ -11,6 +11,7 @@ import Foundation
 class ClaudeUsageManager: ObservableObject {
     @Published var monthlyData: [(month: String, cost: Double, details: TokenBreakdown)] = []
     @Published var projectData: [(project: String, cost: Double, details: TokenBreakdown)] = []
+    @Published var modelData: [(model: String, cost: Double, details: TokenBreakdown)] = []
     @Published var currentMonthCost: Double = 0.0
     @Published var totalCost: Double = 0.0
     @Published var lastUpdate: Date = Date()
@@ -44,9 +45,10 @@ class ClaudeUsageManager: ObservableObject {
     }
     
     // Process a turn (group of consecutive assistant messages) and count it as ONE billable event
-    private func processTurn(_ turnMessages: [(timestamp: String?, monthKey: String?, input: Int, cacheCreation: Int, cacheRead: Int, output: Int, contextSize: Int)],
+    private func processTurn(_ turnMessages: [(timestamp: String?, monthKey: String?, input: Int, cacheCreation: Int, cacheRead: Int, output: Int, contextSize: Int, model: String?)],
                              monthlyDict: inout [String: TokenBreakdown],
-                             projectBreakdown: inout TokenBreakdown) {
+                             projectBreakdown: inout TokenBreakdown,
+                             modelDict: inout [String: TokenBreakdown]) {
 
         // Take only the LAST message of the turn (contains final response)
         guard let lastMessage = turnMessages.last else { return }
@@ -56,6 +58,7 @@ class ClaudeUsageManager: ObservableObject {
         let cacheRead = lastMessage.cacheRead
         let output = lastMessage.output
         let contextSize = lastMessage.contextSize
+        let modelName = lastMessage.model ?? "Unknown Model"
 
         // Calculate cost for this turn
         let turnCost = calculateMessageCost(
@@ -85,6 +88,16 @@ class ClaudeUsageManager: ObservableObject {
         projectBreakdown.outputTokens += output
         projectBreakdown.maxContextSize = max(projectBreakdown.maxContextSize, contextSize)
         projectBreakdown.accumulatedCost += turnCost
+        
+        // Update model data
+        var modelBreakdown = modelDict[modelName] ?? TokenBreakdown()
+        modelBreakdown.inputTokens += input
+        modelBreakdown.cacheCreationTokens += cacheCreation
+        modelBreakdown.cacheReadTokens += cacheRead
+        modelBreakdown.outputTokens += output
+        modelBreakdown.maxContextSize = max(modelBreakdown.maxContextSize, contextSize)
+        modelBreakdown.accumulatedCost += turnCost
+        modelDict[modelName] = modelBreakdown
     }
 
     func loadData(showLoading: Bool = true) {
@@ -101,21 +114,45 @@ class ClaudeUsageManager: ObservableObject {
             Task {
                 do {
                     // Fetch all API data concurrently
-                    async let monthlyData = liteLLMManager.fetchUsageData()
+                    // NOTE: fetchUsageData now returns a tuple (monthlyData, modelData)
+                    async let usageData = liteLLMManager.fetchUsageData()
                     async let userInfoTask = liteLLMManager.fetchUserInfo()
                     async let todaySpendTask = liteLLMManager.fetchTodaySpend()
 
-                    let apiMonthlyData = try await monthlyData
+                    let (apiMonthlyData, apiModelData) = try await usageData
                     try await userInfoTask
                     try await todaySpendTask
 
                     // Update UI with API data
                     await MainActor.run {
-                        self.monthlyData = apiMonthlyData
+                        var finalMonthlyData = apiMonthlyData
+                        let currentMonth = self.getCurrentMonthKey()
+                        
+                        // ANTI-FLICKER PROTECTION
+                        // Check if the new data reports a lower cost for the current month than what we already have.
+                        // This often happens with LiteLLM during heavy write loads (race conditions), where the API returns 0 or partial data for "today".
+                        if self.dataSource == .api,
+                           let currentMonthData = self.monthlyData.first(where: { $0.month == currentMonth }),
+                           let newMonthIndex = finalMonthlyData.firstIndex(where: { $0.month == currentMonth }) {
+                            
+                            let newCost = finalMonthlyData[newMonthIndex].cost
+                            let oldCost = currentMonthData.cost
+                            
+                            // If the new cost is lower (and not just a tiny floating point diff), keep the old data
+                            // We use a threshold of 0.01 to ignore micro-differences, but catch the big "drop to zero" glitches
+                            if newCost < oldCost - 0.01 {
+                                print("⚠️ Anti-flicker triggered: Ignored drop in current month (\(currentMonth)) cost from $\(oldCost) to $\(newCost)")
+                                finalMonthlyData[newMonthIndex] = currentMonthData
+                            }
+                        }
+                        
+                        self.monthlyData = finalMonthlyData
+                        // Assign API model data directly
+                        self.modelData = apiModelData
+                        
                         self.dataSource = .api
 
                         // Calculate current month cost
-                        let currentMonth = self.getCurrentMonthKey()
                         self.currentMonthCost = self.monthlyData.first(where: { $0.month == currentMonth })?.cost ?? 0.0
 
                         // Calculate total
@@ -160,6 +197,7 @@ class ClaudeUsageManager: ObservableObject {
 
             var monthlyDict: [String: TokenBreakdown] = [:]
             var projectDict: [String: TokenBreakdown] = [:]
+            var modelDict: [String: TokenBreakdown] = [:]
         
         guard let projects = try? FileManager.default.contentsOfDirectory(atPath: claudeProjectsPath.path) else {
             return
@@ -180,7 +218,7 @@ class ClaudeUsageManager: ObservableObject {
                 let lines = content.components(separatedBy: .newlines)
 
                 // Track consecutive assistant messages (same turn)
-                var currentTurnMessages: [(timestamp: String?, monthKey: String?, input: Int, cacheCreation: Int, cacheRead: Int, output: Int, contextSize: Int)] = []
+                var currentTurnMessages: [(timestamp: String?, monthKey: String?, input: Int, cacheCreation: Int, cacheRead: Int, output: Int, contextSize: Int, model: String?)] = []
                 var lastTimestamp: Date?
 
                 for line in lines where !line.isEmpty {
@@ -192,12 +230,13 @@ class ClaudeUsageManager: ObservableObject {
 
                     let role = message["role"] as? String
                     let usage = message["usage"] as? [String: Any]
+                    let model = json["model"] as? String ?? (message["model"] as? String)
 
                     // If no usage data, this message ends the current turn
                     guard let usage = usage else {
                         // Process accumulated turn messages
                         if !currentTurnMessages.isEmpty {
-                            processTurn(currentTurnMessages, monthlyDict: &monthlyDict, projectBreakdown: &projectBreakdown)
+                            processTurn(currentTurnMessages, monthlyDict: &monthlyDict, projectBreakdown: &projectBreakdown, modelDict: &modelDict)
                             currentTurnMessages.removeAll()
                         }
                         lastTimestamp = nil
@@ -245,7 +284,7 @@ class ClaudeUsageManager: ObservableObject {
 
                     // If new turn starts, process the previous turn
                     if isNewTurn && !currentTurnMessages.isEmpty {
-                        processTurn(currentTurnMessages, monthlyDict: &monthlyDict, projectBreakdown: &projectBreakdown)
+                        processTurn(currentTurnMessages, monthlyDict: &monthlyDict, projectBreakdown: &projectBreakdown, modelDict: &modelDict)
                         currentTurnMessages.removeAll()
                     }
 
@@ -257,13 +296,14 @@ class ClaudeUsageManager: ObservableObject {
                         cacheCreation: cacheCreation,
                         cacheRead: cacheRead,
                         output: output,
-                        contextSize: contextSize
+                        contextSize: contextSize,
+                        model: model
                     ))
                 }
 
                 // Process any remaining turn messages at the end of file
                 if !currentTurnMessages.isEmpty {
-                    processTurn(currentTurnMessages, monthlyDict: &monthlyDict, projectBreakdown: &projectBreakdown)
+                    processTurn(currentTurnMessages, monthlyDict: &monthlyDict, projectBreakdown: &projectBreakdown, modelDict: &modelDict)
                 }
             }
             
@@ -284,6 +324,11 @@ class ClaudeUsageManager: ObservableObject {
                 let cost = self.calculateCost(breakdown)
                 let simplifiedName = self.simplifyProjectName(project)
                 return (project: simplifiedName, cost: cost, details: breakdown)
+            }.sorted { $0.cost > $1.cost }
+            
+            self.modelData = modelDict.map { (model, breakdown) in
+                let cost = self.calculateCost(breakdown)
+                return (model: model, cost: cost, details: breakdown)
             }.sorted { $0.cost > $1.cost }
 
             // Calculate current month cost
@@ -316,6 +361,7 @@ class ClaudeUsageManager: ObservableObject {
                 .appendingPathComponent(".claude/projects")
 
             var projectDict: [String: TokenBreakdown] = [:]
+            var modelDict: [String: TokenBreakdown] = [:]
 
             guard let projects = try? FileManager.default.contentsOfDirectory(atPath: claudeProjectsPath.path) else {
                 return
@@ -335,7 +381,7 @@ class ClaudeUsageManager: ObservableObject {
 
                     let lines = content.components(separatedBy: .newlines)
 
-                    var currentTurnMessages: [(timestamp: String?, monthKey: String?, input: Int, cacheCreation: Int, cacheRead: Int, output: Int, contextSize: Int)] = []
+                    var currentTurnMessages: [(timestamp: String?, monthKey: String?, input: Int, cacheCreation: Int, cacheRead: Int, output: Int, contextSize: Int, model: String?)] = []
                     var lastTimestamp: Date?
                     var dummyMonthlyDict: [String: TokenBreakdown] = [:] // Not used but needed for processTurn
 
@@ -348,10 +394,11 @@ class ClaudeUsageManager: ObservableObject {
 
                         let role = message["role"] as? String
                         let usage = message["usage"] as? [String: Any]
+                        let model = json["model"] as? String ?? (message["model"] as? String)
 
                         guard let usage = usage else {
                             if !currentTurnMessages.isEmpty {
-                                self.processTurn(currentTurnMessages, monthlyDict: &dummyMonthlyDict, projectBreakdown: &projectBreakdown)
+                                self.processTurn(currentTurnMessages, monthlyDict: &dummyMonthlyDict, projectBreakdown: &projectBreakdown, modelDict: &modelDict)
                                 currentTurnMessages.removeAll()
                             }
                             lastTimestamp = nil
@@ -393,7 +440,7 @@ class ClaudeUsageManager: ObservableObject {
                         }
 
                         if isNewTurn && !currentTurnMessages.isEmpty {
-                            self.processTurn(currentTurnMessages, monthlyDict: &dummyMonthlyDict, projectBreakdown: &projectBreakdown)
+                            self.processTurn(currentTurnMessages, monthlyDict: &dummyMonthlyDict, projectBreakdown: &projectBreakdown, modelDict: &modelDict)
                             currentTurnMessages.removeAll()
                         }
 
@@ -404,12 +451,13 @@ class ClaudeUsageManager: ObservableObject {
                             cacheCreation: cacheCreation,
                             cacheRead: cacheRead,
                             output: output,
-                            contextSize: contextSize
+                            contextSize: contextSize,
+                            model: model
                         ))
                     }
 
                     if !currentTurnMessages.isEmpty {
-                        self.processTurn(currentTurnMessages, monthlyDict: &dummyMonthlyDict, projectBreakdown: &projectBreakdown)
+                        self.processTurn(currentTurnMessages, monthlyDict: &dummyMonthlyDict, projectBreakdown: &projectBreakdown, modelDict: &modelDict)
                     }
                 }
 
@@ -425,6 +473,15 @@ class ClaudeUsageManager: ObservableObject {
                     let simplifiedName = self.simplifyProjectName(project)
                     return (project: simplifiedName, cost: cost, details: breakdown)
                 }.sorted { $0.cost > $1.cost }
+                
+                // Only update model data from local files if NOT using API
+                // (API provides better model breakdown including Gemini, etc.)
+                if self.dataSource != .api {
+                    self.modelData = modelDict.map { (model, breakdown) in
+                        let cost = self.calculateCost(breakdown)
+                        return (model: model, cost: cost, details: breakdown)
+                    }.sorted { $0.cost > $1.cost }
+                }
             }
         }
     }

@@ -24,6 +24,7 @@ class LiteLLMManager: ObservableObject {
     struct DailyActivity: Codable {
         let date: String
         let metrics: Metrics
+        let breakdown: Breakdown?
 
         struct Metrics: Codable {
             let spend: Double
@@ -34,6 +35,14 @@ class LiteLLMManager: ObservableObject {
             let total_tokens: Int
             let successful_requests: Int
             let failed_requests: Int
+        }
+        
+        struct Breakdown: Codable {
+            let models: [String: ModelActivity]?
+        }
+        
+        struct ModelActivity: Codable {
+            let metrics: Metrics
         }
     }
 
@@ -69,7 +78,7 @@ class LiteLLMManager: ObservableObject {
         return !apiKey.isEmpty && apiKey.hasPrefix("sk-")
     }
 
-    func fetchUsageData() async throws -> [(month: String, cost: Double, details: ClaudeUsageManager.TokenBreakdown)] {
+    func fetchUsageData() async throws -> (monthlyData: [(month: String, cost: Double, details: ClaudeUsageManager.TokenBreakdown)], modelData: [(model: String, cost: Double, details: ClaudeUsageManager.TokenBreakdown)]) {
         guard hasValidAPIKey() else {
             throw LiteLLMError.missingAPIKey
         }
@@ -111,29 +120,56 @@ class LiteLLMManager: ObservableObject {
         let decoder = JSONDecoder()
         let apiResponse = try decoder.decode(APIResponse.self, from: data)
 
-        // Group by month
+        // Group by month AND accumulate by model
         var monthlyDict: [String: ClaudeUsageManager.TokenBreakdown] = [:]
+        var modelDict: [String: ClaudeUsageManager.TokenBreakdown] = [:]
 
         for dailyActivity in apiResponse.results {
-            // Extract month from date (format: yyyy-MM-dd)
+            // 1. Process Monthly Data
             let monthKey = String(dailyActivity.date.prefix(7)) // Get yyyy-MM
 
             var monthBreakdown = monthlyDict[monthKey] ?? ClaudeUsageManager.TokenBreakdown()
-
-            // Accumulate tokens
             monthBreakdown.inputTokens += dailyActivity.metrics.prompt_tokens
             monthBreakdown.cacheCreationTokens += dailyActivity.metrics.cache_creation_input_tokens
             monthBreakdown.cacheReadTokens += dailyActivity.metrics.cache_read_input_tokens
             monthBreakdown.outputTokens += dailyActivity.metrics.completion_tokens
-
-            // Accumulate REAL cost from API (not calculated)
             monthBreakdown.accumulatedCost += dailyActivity.metrics.spend
-
             monthlyDict[monthKey] = monthBreakdown
+            
+            // 2. Process Model Data
+            if let models = dailyActivity.breakdown?.models {
+                for (modelName, activity) in models {
+                    // Clean up model name (remove vertex_ai/ prefix etc if needed, but maybe keep full for clarity)
+                    // Let's simplify only if it has prefixes like "vertex_ai/"
+                    var cleanModelName = modelName
+                    if cleanModelName.hasPrefix("vertex_ai/") {
+                         cleanModelName = String(cleanModelName.dropFirst("vertex_ai/".count))
+                    }
+                    // Remove @date suffix if present
+                    if let atIndex = cleanModelName.firstIndex(of: "@") {
+                        cleanModelName = String(cleanModelName[..<atIndex])
+                    }
+                    
+                    var modelBreakdown = modelDict[cleanModelName] ?? ClaudeUsageManager.TokenBreakdown()
+                    modelBreakdown.inputTokens += activity.metrics.prompt_tokens
+                    modelBreakdown.cacheCreationTokens += activity.metrics.cache_creation_input_tokens
+                    modelBreakdown.cacheReadTokens += activity.metrics.cache_read_input_tokens
+                    modelBreakdown.outputTokens += activity.metrics.completion_tokens
+                    modelBreakdown.accumulatedCost += activity.metrics.spend
+                    
+                    // Since we have exact cost from API, we can set estimated costs to match
+                    // This helps with the UI display which relies on estimated costs sometimes
+                    modelBreakdown.estimatedInputCost = 0 // We don't know breakdown, but total is correct
+                    
+                    modelDict[cleanModelName] = modelBreakdown
+                }
+            }
         }
 
-        // Calculate estimated individual costs proportionally for each month
-        for (monthKey, var breakdown) in monthlyDict {
+        // Process Monthly Data (Calculate estimates)
+        let mappedMonthlyData: [(month: String, cost: Double, details: ClaudeUsageManager.TokenBreakdown)] = monthlyDict.map { (month, breakdown) in
+            var finalBreakdown = breakdown
+            
             // Calculate theoretical cost using standard pricing (as reference)
             let theoreticalInputCost = Double(breakdown.inputTokens) * 0.000003
             let theoreticalCacheCreationCost = Double(breakdown.cacheCreationTokens) * 0.00000375
@@ -144,21 +180,25 @@ class LiteLLMManager: ObservableObject {
             // Calculate adjustment factor to match real API cost
             let adjustmentFactor = theoreticalTotalCost > 0 ? breakdown.accumulatedCost / theoreticalTotalCost : 1.0
 
-            // Apply adjustment factor to get estimated costs that sum to real API cost
-            breakdown.estimatedInputCost = theoreticalInputCost * adjustmentFactor
-            breakdown.estimatedCacheCreationCost = theoreticalCacheCreationCost * adjustmentFactor
-            breakdown.estimatedCacheReadCost = theoreticalCacheReadCost * adjustmentFactor
-            breakdown.estimatedOutputCost = theoreticalOutputCost * adjustmentFactor
-
-            monthlyDict[monthKey] = breakdown
+            // Apply adjustment factor
+            finalBreakdown.estimatedInputCost = theoreticalInputCost * adjustmentFactor
+            finalBreakdown.estimatedCacheCreationCost = theoreticalCacheCreationCost * adjustmentFactor
+            finalBreakdown.estimatedCacheReadCost = theoreticalCacheReadCost * adjustmentFactor
+            finalBreakdown.estimatedOutputCost = theoreticalOutputCost * adjustmentFactor
+            
+            return (month: month, cost: finalBreakdown.accumulatedCost, details: finalBreakdown)
         }
+        
+        let monthlyData = mappedMonthlyData.sorted { $0.month > $1.month }
+        
+        // Process Model Data
+        let mappedModelData: [(model: String, cost: Double, details: ClaudeUsageManager.TokenBreakdown)] = modelDict.map { (model, breakdown) in
+            return (model: model, cost: breakdown.accumulatedCost, details: breakdown)
+        }
+        
+        let modelData = mappedModelData.sorted { $0.cost > $1.cost }
 
-        // Convert to array and sort by month (newest first)
-        let monthlyData = monthlyDict.map { (month, breakdown) in
-            return (month: month, cost: breakdown.accumulatedCost, details: breakdown)
-        }.sorted { $0.month > $1.month }
-
-        return monthlyData
+        return (monthlyData, modelData)
     }
 
     func fetchUserInfo() async throws {
