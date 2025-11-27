@@ -114,7 +114,6 @@ class ClaudeUsageManager: ObservableObject {
             Task {
                 do {
                     // Fetch all API data concurrently
-                    // NOTE: fetchUsageData now returns a tuple (monthlyData, modelData)
                     async let usageData = liteLLMManager.fetchUsageData()
                     async let userInfoTask = liteLLMManager.fetchUserInfo()
                     async let todaySpendTask = liteLLMManager.fetchTodaySpend()
@@ -125,38 +124,19 @@ class ClaudeUsageManager: ObservableObject {
 
                     // Update UI with API data
                     await MainActor.run {
-                        var finalMonthlyData = apiMonthlyData
-                        let currentMonth = self.getCurrentMonthKey()
-                        
-                        // ANTI-FLICKER PROTECTION
-                        // Check if the new data reports a lower cost for the current month than what we already have.
-                        // This often happens with LiteLLM during heavy write loads (race conditions), where the API returns 0 or partial data for "today".
-                        if self.dataSource == .api,
-                           let currentMonthData = self.monthlyData.first(where: { $0.month == currentMonth }),
-                           let newMonthIndex = finalMonthlyData.firstIndex(where: { $0.month == currentMonth }) {
-                            
-                            let newCost = finalMonthlyData[newMonthIndex].cost
-                            let oldCost = currentMonthData.cost
-                            
-                            // If the new cost is lower (and not just a tiny floating point diff), keep the old data
-                            // We use a threshold of 0.01 to ignore micro-differences, but catch the big "drop to zero" glitches
-                            if newCost < oldCost - 0.01 {
-                                print("⚠️ Anti-flicker triggered: Ignored drop in current month (\(currentMonth)) cost from $\(oldCost) to $\(newCost)")
-                                finalMonthlyData[newMonthIndex] = currentMonthData
-                            }
-                        }
-                        
-                        self.monthlyData = finalMonthlyData
-                        // Assign API model data directly
+                        self.monthlyData = apiMonthlyData
                         self.modelData = apiModelData
-                        
                         self.dataSource = .api
 
-                        // Calculate current month cost
+                        let currentMonth = self.getCurrentMonthKey()
                         self.currentMonthCost = self.monthlyData.first(where: { $0.month == currentMonth })?.cost ?? 0.0
-
-                        // Calculate total
                         self.totalCost = self.monthlyData.reduce(0) { $0 + $1.cost }
+
+                        print("💵 [Manager] Total Cost: $\(String(format: "%.2f", self.totalCost))")
+                        print("📅 [Manager] Monthly breakdown:")
+                        for month in self.monthlyData {
+                            print("   \(month.month): $\(String(format: "%.2f", month.cost))")
+                        }
 
                         // Project data still comes from local files (API doesn't provide per-project breakdown)
                         self.loadLocalProjectData()
@@ -171,7 +151,7 @@ class ClaudeUsageManager: ObservableObject {
                     }
                 } catch {
                     // API failed, fallback to local calculation
-                    print("API failed: \(error.localizedDescription). Falling back to local calculation.")
+                    print("⚠️ API failed: \(error.localizedDescription). Falling back to local calculation.")
                     self.loadLocalData(showLoading: showLoading)
                 }
             }
@@ -326,8 +306,10 @@ class ClaudeUsageManager: ObservableObject {
                 return (project: simplifiedName, cost: cost, details: breakdown)
             }.sorted { $0.cost > $1.cost }
             
-            self.modelData = modelDict.map { (model, breakdown) in
+            self.modelData = modelDict.compactMap { (model, breakdown) in
                 let cost = self.calculateCost(breakdown)
+                // Only include models with actual spend
+                guard cost > 0 else { return nil }
                 return (model: model, cost: cost, details: breakdown)
             }.sorted { $0.cost > $1.cost }
 
@@ -477,8 +459,10 @@ class ClaudeUsageManager: ObservableObject {
                 // Only update model data from local files if NOT using API
                 // (API provides better model breakdown including Gemini, etc.)
                 if self.dataSource != .api {
-                    self.modelData = modelDict.map { (model, breakdown) in
+                    self.modelData = modelDict.compactMap { (model, breakdown) in
                         let cost = self.calculateCost(breakdown)
+                        // Only include models with actual spend
+                        guard cost > 0 else { return nil }
                         return (model: model, cost: cost, details: breakdown)
                     }.sorted { $0.cost > $1.cost }
                 }

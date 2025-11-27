@@ -28,7 +28,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var pricingManager = PricingManager()
     var currencyManager = CurrencyManager()
     var liteLLMManager = LiteLLMManager()
+    var updateManager = UpdateManager()
     private var timer: Timer?
+    private var updateCheckTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
     private var eventMonitor: Any?
 
@@ -37,6 +39,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         manager.pricingManager = pricingManager
         manager.localizationManager = localizationManager
         manager.liteLLMManager = liteLLMManager
+
+        // Check for updates on startup
+        Task {
+            await updateManager.checkForUpdates()
+        }
 
         // Crear item en la barra de menú
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -81,6 +88,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             .store(in: &cancellables)
 
+        // Observe update availability to update menu bar
+        updateManager.$updateAvailable
+            .sink { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.updateMenuBarTitle()
+                }
+            }
+            .store(in: &cancellables)
+
         // Cargar datos iniciales (sin mostrar loading)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             self?.manager.loadData(showLoading: false)
@@ -89,6 +105,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Actualizar cada 1 minuto (sin mostrar loading)
         timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             self?.manager.loadData(showLoading: false)
+        }
+
+        // Check for updates every 2 hours
+        updateCheckTimer = Timer.scheduledTimer(withTimeInterval: 7200, repeats: true) { [weak self] _ in
+            Task { [weak self] in
+                await self?.updateManager.checkForUpdates()
+            }
         }
     }
     
@@ -131,6 +154,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 .environmentObject(pricingManager)
                 .environmentObject(currencyManager)
                 .environmentObject(liteLLMManager)
+                .environmentObject(updateManager)
         )
         self.popover = popover
 
@@ -145,7 +169,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let button = statusItem?.button {
             let cost = manager.currentMonthCost
             let formattedAmount = currencyManager.formatAmount(cost, language: localizationManager.currentLanguage)
-            button.title = "💰 \(formattedAmount)"
+
+            // Use attributed string for smaller colored dot
+            if updateManager.updateAvailable {
+                let attributedString = NSMutableAttributedString()
+                attributedString.append(NSAttributedString(string: "💰 \(formattedAmount) "))
+
+                // Add small orange dot centered vertically
+                let dotAttributes: [NSAttributedString.Key: Any] = [
+                    .foregroundColor: NSColor.orange,
+                    .font: NSFont.systemFont(ofSize: 8, weight: .bold),
+                    .baselineOffset: 2  // Raise the dot to center it with the text
+                ]
+                attributedString.append(NSAttributedString(string: "●", attributes: dotAttributes))
+
+                button.attributedTitle = attributedString
+            } else {
+                button.title = "💰 \(formattedAmount)"
+            }
         }
     }
     

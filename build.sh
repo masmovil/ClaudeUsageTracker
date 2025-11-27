@@ -16,6 +16,7 @@ swiftc \
     PricingManager.swift \
     CurrencyManager.swift \
     LiteLLMManager.swift \
+    UpdateManager.swift \
     SettingsView.swift \
     MainView.swift
 

@@ -15,6 +15,7 @@ struct MainView: View {
     @EnvironmentObject var pricingManager: PricingManager
     @EnvironmentObject var currencyManager: CurrencyManager
     @EnvironmentObject var liteLLMManager: LiteLLMManager
+    @EnvironmentObject var updateManager: UpdateManager
     @State private var selectedTab = 0
     @State private var showSettings = false
 
@@ -263,6 +264,52 @@ struct MainView: View {
                 .padding(.vertical, 8)
             }
 
+            // Update banner
+            if updateManager.updateAvailable {
+                Button(action: {
+                    updateManager.openReleaseURL()
+                }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "arrow.down.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.orange)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(localizationManager.currentLanguage == .english ?
+                                 "New version \(updateManager.latestVersion) available" :
+                                 "Nueva versión \(updateManager.latestVersion) disponible")
+                                .font(.body)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            Text(localizationManager.currentLanguage == .english ?
+                                 "Click to see release notes" :
+                                 "Click para ver notas de la release")
+                                .font(.callout)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color.yellow.opacity(0.2))
+                    .cornerRadius(10)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+                .onHover { hovering in
+                    if hovering {
+                        NSCursor.pointingHand.push()
+                    } else {
+                        NSCursor.pop()
+                    }
+                }
+            }
+
             // Tabs
             Picker("", selection: $selectedTab) {
                 Text(localizationManager.localized(.byMonth)).tag(0)
@@ -286,13 +333,32 @@ struct MainView: View {
             Divider() 
             
             // Footer
-            HStack {
-                Text(localizationManager.localized(.lastUpdate))
+            HStack(spacing: 0) {
+                Spacer()
+
+                HStack(spacing: 4) {
+                    Text(localizationManager.localized(.lastUpdate))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(manager.lastUpdate, style: .time)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                Text(" • ")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                Text(manager.lastUpdate, style: .time)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+
+                HStack(spacing: 4) {
+                    Text("Version")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
             }
             .padding(.vertical, 8)
         }

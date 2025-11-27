@@ -24,7 +24,13 @@
   - **Advanced Model Breakdown**: Get exact costs for every model used (Claude, Gemini, Vertex AI, etc.)
   - Today's spend monitoring & Budget reset date
   - **🛡️ Anti-Flicker Protection**: Smart algorithm prevents price drops when API glitches occur
+  - **Full API Pagination Support**: Automatically fetches all pages of data from API
   - Clear data source indicator (API/Local)
+- **🔔 Auto-Update Notifications** - Never miss a new version
+  - Checks for updates on startup and every 2 hours
+  - Non-intrusive yellow banner when updates are available
+  - Orange dot indicator in menu bar (●)
+  - One-click access to release notes
 - **🤖 Model Tracking** - See exactly which AI models are driving your costs
 - **🎯 Accurate Cost Tracking** - Properly groups tool calls and calculates costs per conversation turn
 - **📊 Real-time Monitoring** - Current month cost visible in your menu bar
