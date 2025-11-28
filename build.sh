@@ -4,21 +4,32 @@ set -e
 
 echo "🔨 Compilando ClaudeUsageTracker..."
 
-# Compilar los archivos Swift
+SWIFT_FILES="ClaudeUsageTrackerApp.swift ClaudeUsageManager.swift LocalizationManager.swift PricingManager.swift CurrencyManager.swift LiteLLMManager.swift UpdateManager.swift SettingsView.swift MainView.swift"
+
+# Compilar para ARM64 (Apple Silicon)
+echo "  → Compilando para Apple Silicon (arm64)..."
 swiftc \
     -target arm64-apple-macos13.0 \
     -framework AppKit \
     -framework SwiftUI \
-    -o ClaudeUsageTracker_binary \
-    ClaudeUsageTrackerApp.swift \
-    ClaudeUsageManager.swift \
-    LocalizationManager.swift \
-    PricingManager.swift \
-    CurrencyManager.swift \
-    LiteLLMManager.swift \
-    UpdateManager.swift \
-    SettingsView.swift \
-    MainView.swift
+    -o ClaudeUsageTracker_arm64 \
+    $SWIFT_FILES
+
+# Compilar para x86_64 (Intel)
+echo "  → Compilando para Intel (x86_64)..."
+swiftc \
+    -target x86_64-apple-macos13.0 \
+    -framework AppKit \
+    -framework SwiftUI \
+    -o ClaudeUsageTracker_x86_64 \
+    $SWIFT_FILES
+
+# Crear binario universal
+echo "  → Creando binario universal..."
+lipo -create -output ClaudeUsageTracker_binary ClaudeUsageTracker_arm64 ClaudeUsageTracker_x86_64
+
+# Limpiar binarios temporales
+rm ClaudeUsageTracker_arm64 ClaudeUsageTracker_x86_64
 
 # Crear estructura de la app
 mkdir -p "ClaudeUsageTracker.app/Contents/MacOS"
