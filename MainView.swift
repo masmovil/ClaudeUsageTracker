@@ -16,6 +16,7 @@ struct MainView: View {
     @EnvironmentObject var currencyManager: CurrencyManager
     @EnvironmentObject var liteLLMManager: LiteLLMManager
     @EnvironmentObject var updateManager: UpdateManager
+    @EnvironmentObject var preferencesManager: PreferencesManager
     @State private var selectedTab = 0
     @State private var showSettings = false
 
@@ -158,6 +159,22 @@ struct MainView: View {
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
+
+                    // Toggle to hide cost in menu bar
+                    Toggle(isOn: $preferencesManager.showCostInStatusBar) {
+                        HStack(spacing: 4) {
+                            Image(systemName: preferencesManager.showCostInStatusBar ? "eye.fill" : "eye.slash.fill")
+                                .font(.system(size: 9))
+                                .foregroundColor(preferencesManager.showCostInStatusBar ? .blue : .secondary)
+                            Text(localizationManager.currentLanguage == .english ?
+                                 "Show cost in menu bar" :
+                                 "Mostrar gasto en barra de menú")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
                 }
                 Spacer()
                 
@@ -206,7 +223,7 @@ struct MainView: View {
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
-                
+
                 Button(action: {
                     manager.loadData()
                 }) {
@@ -641,6 +658,13 @@ struct ModelView: View {
     @EnvironmentObject var localizationManager: LocalizationManager
     @EnvironmentObject var currencyManager: CurrencyManager
 
+    private func formatNumber(_ number: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = ","
+        return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Warning about data source
@@ -669,54 +693,34 @@ struct ModelView: View {
             .background(manager.dataSource == .api ? Color.green.opacity(0.1) : Color.blue.opacity(0.1))
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 12) {
                     ForEach(manager.modelData, id: \.model) {
                         item in
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
+                        HStack(spacing: 12) {
+                            // Model icon and name
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text("🤖 \(item.model)")
-                                    .font(.headline)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
                                     .lineLimit(2)
-                                Spacer()
-                                Text(currencyManager.formatAmount(item.cost, language: localizationManager.currentLanguage))
-                                    .font(.headline)
-                                    .foregroundColor(.green)
+
+                                // Total tokens count
+                                let totalTokens = item.details.inputTokens + item.details.cacheCreationTokens + item.details.cacheReadTokens + item.details.outputTokens
+                                Text("\(formatNumber(totalTokens)) tokens")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
 
-                            TokenRow(
-                                label: localizationManager.localized(.input),
-                                count: item.details.inputTokens,
-                                cost: item.details.estimatedInputCost ?? (Double(item.details.inputTokens) * 0.000003),
-                                color: .blue,
-                                isEstimated: item.details.estimatedInputCost != nil
-                            )
+                            Spacer()
 
-                            TokenRow(
-                                label: localizationManager.localized(.cacheCreation),
-                                count: item.details.cacheCreationTokens,
-                                cost: item.details.estimatedCacheCreationCost ?? (Double(item.details.cacheCreationTokens) * 0.00000375),
-                                color: .orange,
-                                isEstimated: item.details.estimatedCacheCreationCost != nil
-                            )
-
-                            TokenRow(
-                                label: localizationManager.localized(.cacheRead),
-                                count: item.details.cacheReadTokens,
-                                cost: item.details.estimatedCacheReadCost ?? (Double(item.details.cacheReadTokens) * 0.0000003),
-                                color: .purple,
-                                isEstimated: item.details.estimatedCacheReadCost != nil
-                            )
-
-                            TokenRow(
-                                label: localizationManager.localized(.output),
-                                count: item.details.outputTokens,
-                                cost: item.details.estimatedOutputCost ?? (Double(item.details.outputTokens) * 0.000015),
-                                color: .red,
-                                isEstimated: item.details.estimatedOutputCost != nil
-                            )
+                            // Cost
+                            Text(currencyManager.formatAmount(item.cost, language: localizationManager.currentLanguage))
+                                .font(.headline)
+                                .foregroundColor(.green)
                         }
-                        .padding()
-                        .background(Color.secondary.opacity(0.1))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.secondary.opacity(0.08))
                         .cornerRadius(8)
                     }
                 }

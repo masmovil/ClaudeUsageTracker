@@ -4,7 +4,7 @@ set -e
 
 echo "🔨 Compilando ClaudeUsageTracker..."
 
-SWIFT_FILES="ClaudeUsageTrackerApp.swift ClaudeUsageManager.swift LocalizationManager.swift PricingManager.swift CurrencyManager.swift LiteLLMManager.swift UpdateManager.swift SettingsView.swift MainView.swift"
+SWIFT_FILES="ClaudeUsageTrackerApp.swift ClaudeUsageManager.swift LocalizationManager.swift PricingManager.swift PreferencesManager.swift CurrencyManager.swift LiteLLMManager.swift UpdateManager.swift SettingsView.swift MainView.swift"
 
 # Compilar para ARM64 (Apple Silicon)
 echo "  → Compilando para Apple Silicon (arm64)..."
@@ -70,9 +70,9 @@ cat > "ClaudeUsageTracker.app/Contents/Info.plist" << 'EOF'
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.6.0</string>
+    <string>1.7.0</string>
     <key>CFBundleVersion</key>
-    <string>6</string>
+    <string>7</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>LSUIElement</key>

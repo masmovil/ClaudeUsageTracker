@@ -25,6 +25,9 @@ Package.resolved
 
 # Release artifacts
 release/
+*.dmg
+*.dmg.sha256
+*.zip
 
 # Personal data
 *.csv

@@ -29,6 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var currencyManager = CurrencyManager()
     var liteLLMManager = LiteLLMManager()
     var updateManager = UpdateManager()
+    var preferencesManager = PreferencesManager()
     private var timer: Timer?
     private var updateCheckTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
@@ -97,6 +98,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             .store(in: &cancellables)
 
+        // Observe cost visibility preference changes to update menu bar
+        preferencesManager.$showCostInStatusBar
+            .sink { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.updateMenuBarTitle()
+                }
+            }
+            .store(in: &cancellables)
+
         // Cargar datos iniciales (sin mostrar loading)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             self?.manager.loadData(showLoading: false)
@@ -155,6 +165,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 .environmentObject(currencyManager)
                 .environmentObject(liteLLMManager)
                 .environmentObject(updateManager)
+                .environmentObject(preferencesManager)
         )
         self.popover = popover
 
@@ -167,13 +178,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func updateMenuBarTitle() {
         if let button = statusItem?.button {
-            let cost = manager.currentMonthCost
-            let formattedAmount = currencyManager.formatAmount(cost, language: localizationManager.currentLanguage)
+            let displayText: String
+
+            if preferencesManager.showCostInStatusBar {
+                let cost = manager.currentMonthCost
+                displayText = currencyManager.formatAmount(cost, language: localizationManager.currentLanguage)
+            } else {
+                displayText = "***"
+            }
 
             // Use attributed string for smaller colored dot
             if updateManager.updateAvailable {
                 let attributedString = NSMutableAttributedString()
-                attributedString.append(NSAttributedString(string: "💰 \(formattedAmount) "))
+                attributedString.append(NSAttributedString(string: "💰 \(displayText) "))
 
                 // Add small orange dot centered vertically
                 let dotAttributes: [NSAttributedString.Key: Any] = [
@@ -185,7 +202,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
                 button.attributedTitle = attributedString
             } else {
-                button.title = "💰 \(formattedAmount)"
+                button.title = "💰 \(displayText)"
             }
         }
     }
